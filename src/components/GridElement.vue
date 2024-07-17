@@ -4,8 +4,8 @@
       <div class="element__image">
         <img :src="props.img" alt="">
       </div>
-      <div class="element__counter">
-        <div class="element__counter-item">4</div>
+      <div class="element__counter" v-if="typeof props.counter !== 'undefined'">
+        <div class="element__counter-item">{{ props.counter }}</div>
       </div>
       <slot></slot>
     </div>
@@ -13,25 +13,31 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 interface IGridElementProps {
   id?: number
-  title?: string
   img?: string
+  counter?: number | undefined
 }
 const props = defineProps<IGridElementProps>()
+
 </script>
 
 <style scoped lang="scss">
 @import '../assets/main.scss';
 .element {
   position: relative;
+  height: 100%;
   background-color: $color-background-items;
   border: 1px solid $color-border;
 
-  -webkit-user-select: none; /* Chrome/Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE/Edge */
-  user-select: none; /* Стандартный синтаксис */
+  cursor: pointer;
+
+  -webkit-user-select: none; 
+  -moz-user-select: none;
+  -ms-user-select: none; 
+  user-select: none; 
   &__wrapper {
     display: flex;
     align-items: center;

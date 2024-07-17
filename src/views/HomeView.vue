@@ -1,18 +1,52 @@
 <script setup lang="ts">
+import AsideBar from '@/components/AsideBar.vue'
 import GridElement from '@/components/GridElement.vue'
 import { onMounted, ref } from 'vue'
 
 const dragItem = ref<any>()
+const modalContent = ref<IDragItem>({})
+const modalCloseState = ref<boolean>(false)
 interface IDragItem {
   id?: number
   img?: string
+  counter?: number
 }
 const items = ref<IDragItem[]>([
-  { id: 0, img: '/src/components/icons/GreenIcon.svg' },
-  { id: 1, img: '/src/components/icons/YellowIcon.svg' },
-  { id: 2, img: '/src/components/icons/PurpleIcon.svg' }
+  { id: 0, img: '/src/components/icons/GreenIcon.svg', counter: 4 },
+  { id: 1, img: '/src/components/icons/YellowIcon.svg', counter: 2 },
+  { id: 2, img: '/src/components/icons/PurpleIcon.svg', counter: 5 }
 ])
+function fillArrayWithEmptyObjects(array: IDragItem[], size: number) {
+  // Проверяем, что размер массива меньше требуемого
+  if (array.length < size) {
+    const emptyObjectsCount = size - array.length
+    const emptyObjects = Array(emptyObjectsCount).fill({})
+    array.push(...emptyObjects)
+  }
+  return array
+}
 
+onMounted(() => {
+  fillArrayWithEmptyObjects(items.value, 25)
+})
+const handleDragStart = (index: number) => {
+  dragItem.value = index
+}
+const handleDragEnd = () => {
+  dragItem.value = null
+}
+const handleDrop = (index: number) => {
+  const droppedItem = items.value[dragItem.value]
+
+  const temp = items.value[index]
+  items.value[index] = droppedItem
+  items.value[dragItem.value] = temp
+}
+
+const clickElement = (item: IDragItem) => {
+  modalContent.value = item
+  modalCloseState.value = false
+}
 </script>
 
 <template>
@@ -37,16 +71,25 @@ const items = ref<IDragItem[]>([
             </div>
           </div>
           <div class="drop-zone">
-            <grid-element
+            <template v-if="Object.keys(modalContent).length && !modalCloseState">
+              <aside-bar :img-src="modalContent?.img" @close-modal="modalCloseState = true">
+                <template v-if="modalContent?.counter">
+                  <div class="modal-right__counter">{{ modalContent?.counter }}</div>
+                </template>
+              </aside-bar>
+            </template>
+            <div
+              class="draggable-element"
               v-for="(item, index) in items"
               :key="item.id"
-              :img="item.img"
               @dragstart="handleDragStart(index)"
               @dragend="handleDragEnd"
               @dragover.prevent
               @drop="handleDrop(index)"
             >
-            </grid-element>
+              <grid-element :img="item.img" :counter="item.counter" @click="clickElement(item)">
+              </grid-element>
+            </div>
             <!-- <div
               class="drop-el"
               v-for="(item, index) in items"
@@ -68,6 +111,9 @@ const items = ref<IDragItem[]>([
 
 <style scoped lang="scss">
 @import '../assets/main.scss';
+.main {
+  position: relative;
+}
 #app {
   color: black;
   margin-top: 60px;
@@ -105,6 +151,7 @@ const items = ref<IDragItem[]>([
 }
 
 .drop-zone {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
