@@ -4,7 +4,6 @@ import AppInput from '@/components/AppInput.vue'
 import AsideBar from '@/components/AsideBar.vue'
 import GridElement from '@/components/GridElement.vue'
 import { onMounted, ref, watch } from 'vue'
-import { onMounted, ref, watch } from 'vue'
 
 const dragItem = ref<any>()
 const modalContent = ref<IDragItem>({})
@@ -79,9 +78,6 @@ const elementModal = (item: IDragItem) => {
 const saveUpdates = () => {
   localStorage.setItem('items', JSON.stringify(items.value))
 }
-const saveUpdates = () => {
-  localStorage.setItem('items', JSON.stringify(items.value))
-}
 const setCounterValue = (item: IDragItem) => {
   items.value = items.value.map((el) => {
     if (el.id === item.id) {
@@ -109,16 +105,6 @@ const deleteElement = (item: IDragItem) => {
 const resetStorage = () => {
   localStorage.clear()
   items.value = [
-    { id: 0, img: '/src/components/icons/GreenIcon.svg', counter: 4 },
-    { id: 1, img: '/src/components/icons/YellowIcon.svg', counter: 2 },
-    { id: 2, img: '/src/components/icons/PurpleIcon.svg', counter: 5 }
-  ]
-  fillArrayWithEmptyObjects(items.value, 25)
-}
-
-const resetStorage = () => {
-  localStorage.clear()
-  items.value = [
     { id: 0, img: '/src/assets/GreenIcon.svg', counter: 4 },
     { id: 1, img: '/src/assets/YellowIcon.svg', counter: 2 },
     { id: 2, img: '/src/assets/PurpleIcon.svg', counter: 5 }
@@ -138,15 +124,10 @@ const resetStorage = () => {
                 <div class="left__img">
                   <img src="../assets/image.jpg" alt="" />
                 </div>
-                <div class="left__img">
-                  <img src="../assets/image.jpg" alt="" />
-                </div>
               </div>
               <div class="left__content loading">
                 <div class="left__line left__line_wide skeleton"></div>
-                <div class="left__line left__line_wide skeleton"></div>
                 <div
-                  class="left__line skeleton"
                   class="left__line skeleton"
                   v-for="i in 5"
                   :key="i"
@@ -155,7 +136,6 @@ const resetStorage = () => {
               </div>
             </div>
           </div>
-          <div class="grid-elements">
           <div class="grid-elements">
             <template v-if="Object.keys(modalContent).length && !isModalClose">
               <aside-bar :img-src="modalContent?.img" @close-modal="closeModal">
@@ -224,27 +204,6 @@ const resetStorage = () => {
             </div>
           </div>
 
-          <div class="content__bottom">
-            <div class="bottom">
-              <div class="bottom__wrapper">
-                <span class="bottom__icon" @click="resetStorage">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 1.05L10.95 0L6 4.95L1.05 0L0 1.05L4.95 6L0 10.95L1.05 12L6 7.05L10.95 12L12 10.95L7.05 6L12 1.05Z"
-                      fill="white"
-                    />
-                  </svg>
-                </span>
-                <div class="bottom__line skeleton"></div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -295,12 +254,12 @@ const resetStorage = () => {
   &__img img {
     border-radius: 8px;
 
-  &__img img {
-    border-radius: 8px;
+    &__img img {
+      border-radius: 8px;
+    }
   }
 }
 
-.grid-elements {
 .grid-elements {
   position: relative;
   display: grid;
