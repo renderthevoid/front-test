@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import AppButton from '@/components/AppButton.vue'
+import AppInput from '@/components/AppInput.vue'
 import AsideBar from '@/components/AsideBar.vue'
 import GridElement from '@/components/GridElement.vue'
 import { onMounted, ref } from 'vue'
 
 const dragItem = ref<any>()
 const modalContent = ref<IDragItem>({})
-const modalCloseState = ref<boolean>(false)
+const isModalClose = ref<boolean>(false)
+const isCountModal = ref<boolean>(false)
+
+const counterValue = ref<string | number>('')
 interface IDragItem {
   id?: number
   img?: string
@@ -42,10 +47,37 @@ const handleDrop = (index: number) => {
   items.value[index] = droppedItem
   items.value[dragItem.value] = temp
 }
-
-const clickElement = (item: IDragItem) => {
+const closeModal = () => {
+  isModalClose.value = true
+  isCountModal.value = false
+}
+const elementModal = (item: IDragItem) => {
+  isCountModal.value = false
   modalContent.value = item
-  modalCloseState.value = false
+  isModalClose.value = false
+}
+const setCounterValue = (item: IDragItem) => {
+  items.value = items.value.map((el) => {
+    if (el.id === item.id) {
+      return { ...el, counter: Number(counterValue.value) }
+    }
+    return el
+  })
+}
+const counterModal = (item: IDragItem) => {
+  counterValue.value = ''
+  isCountModal.value = true
+  modalContent.value = item
+  isModalClose.value = false
+}
+const deleteElement = (item: IDragItem) => {
+  items.value = items.value.map((el) => {
+    if (el.id === item.id) {
+      return {}
+    }
+    return el
+  })
+  isModalClose.value = true
 }
 </script>
 
@@ -59,10 +91,10 @@ const clickElement = (item: IDragItem) => {
               <div class="left__top">
                 <img src="../assets/image.svg" alt="" />
               </div>
-              <div class="left__content">
+              <div class="left__content loading">
                 <div class="left__line left__line_wide loading"></div>
                 <div
-                  class="left__line loading"
+                  class="left__line"
                   v-for="i in 5"
                   :key="i"
                   :style="{ width: `${Math.floor(Math.random() * 200)}px` }"
@@ -71,27 +103,33 @@ const clickElement = (item: IDragItem) => {
             </div>
           </div>
           <div class="drop-zone">
-            <template v-if="Object.keys(modalContent).length && !modalCloseState">
-              <aside-bar :img-src="modalContent?.img" @close-modal="modalCloseState = true">
-                <template v-if="modalContent?.counter">
-                  <div class="modal-right__counter">{{ modalContent?.counter }}</div>
+            <template v-if="Object.keys(modalContent).length && !isModalClose">
+              <aside-bar :img-src="modalContent?.img" @close-modal="closeModal">
+                <template v-if="isCountModal">
+                  <div class="actions">
+                    <div class="actions__input">
+                      <app-input
+                        placeholder="Введите количество"
+                        v-model="counterValue"
+                      ></app-input>
+                    </div>
+                    <div class="actions__btns">
+                      <app-button mode="primary" @click="counterValue = ''">Отмена</app-button>
+                      <app-button mode="negative" @click.prevent="setCounterValue(modalContent)"
+                        >Подтвердить</app-button
+                      >
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <app-button mode="negative" @click="deleteElement(modalContent)"
+                    >Удалить предмет</app-button
+                  >
                 </template>
               </aside-bar>
             </template>
             <div
               class="draggable-element"
-              v-for="(item, index) in items"
-              :key="item.id"
-              @dragstart="handleDragStart(index)"
-              @dragend="handleDragEnd"
-              @dragover.prevent
-              @drop="handleDrop(index)"
-            >
-              <grid-element :img="item.img" :counter="item.counter" @click="clickElement(item)">
-              </grid-element>
-            </div>
-            <!-- <div
-              class="drop-el"
               v-for="(item, index) in items"
               :key="item.id"
               :draggable="Object.keys(item).length === 0 ? false : true"
@@ -100,8 +138,14 @@ const clickElement = (item: IDragItem) => {
               @dragover.prevent
               @drop="handleDrop(index)"
             >
-              {{ item.title }}
-            </div> -->
+              <grid-element
+                :img="item.img"
+                :counter="item.counter"
+                @click="elementModal(item)"
+                @counter-click="counterModal(item)"
+              >
+              </grid-element>
+            </div>
           </div>
         </div>
       </div>
@@ -141,13 +185,32 @@ const clickElement = (item: IDragItem) => {
     width: 155px;
     height: 10px;
     border-radius: 10px;
+    border-radius: 4px;
+    animation-delay: .06s;
     &_wide {
       width: 190px;
       height: 26px;
     }
   }
 }
+@keyframes loading {
+  to {
+    background-position-x: -20%;
+  }
+}
+
 .loading {
+  background-color: white;
+  background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0) 60%
+    )
+    var(--loading-grey);
+  background-size: 200% 100%;
+  background-position-x: 180%;
+  animation: 1s loading ease-in-out infinite;
 }
 
 .drop-zone {
@@ -172,5 +235,20 @@ const clickElement = (item: IDragItem) => {
   display: grid;
   grid-template-columns: 0.5fr 1fr;
   gap: 40px;
+}
+
+.actions {
+  position: relative;
+  bottom: 60px;
+  background-color: $color-background-items;
+  padding: 20px 0;
+  border-top: 1px solid $color-border;
+  &__input {
+    margin: 0 0 20px;
+  }
+  &__btns {
+    display: flex;
+    gap: 10px;
+  }
 }
 </style>

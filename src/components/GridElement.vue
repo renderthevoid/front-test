@@ -2,9 +2,13 @@
   <div class="element">
     <div class="element__wrapper">
       <div class="element__image">
-        <img :src="props.img" alt="">
+        <img :src="props.img" alt="" />
       </div>
-      <div class="element__counter" v-if="typeof props.counter !== 'undefined'">
+      <div
+        class="element__counter"
+        @click.stop="$emit('counterClick')"
+        v-if="props.counter !== undefined"
+      >
         <div class="element__counter-item">{{ props.counter }}</div>
       </div>
       <slot></slot>
@@ -13,15 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
 interface IGridElementProps {
   id?: number
   img?: string
   counter?: number | undefined
 }
-const props = defineProps<IGridElementProps>()
+const emit = defineEmits(['counterClick'])
 
+const props = defineProps<IGridElementProps>()
 </script>
 
 <style scoped lang="scss">
@@ -34,10 +37,10 @@ const props = defineProps<IGridElementProps>()
 
   cursor: pointer;
 
-  -webkit-user-select: none; 
+  -webkit-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none; 
-  user-select: none; 
+  -ms-user-select: none;
+  user-select: none;
   &__wrapper {
     display: flex;
     align-items: center;

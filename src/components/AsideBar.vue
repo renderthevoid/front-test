@@ -88,7 +88,7 @@ aside {
     width: 100%;
   }
   &__lines {
-    padding: 16px 0;
+    padding: 16px 0 0;
   }
   &__close {
     cursor: pointer;
@@ -101,12 +101,18 @@ aside {
       height: 130px;
     }
   }
-
+  &__content {
+    padding: 0 0 24px;
+    border-bottom: 1px solid $color-border;
+  }
   &__lines {
     display: flex;
     flex-direction: column;
     gap: 24px;
     align-items: center;
+  }
+  &__bottom {
+    padding: 20px 0;
   }
 }
 </style>
