@@ -3,7 +3,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppInput from '@/components/AppInput.vue'
 import AsideBar from '@/components/AsideBar.vue'
 import GridElement from '@/components/GridElement.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const dragItem = ref<any>()
 const modalContent = ref<IDragItem>({})
@@ -30,8 +30,17 @@ function fillArrayWithEmptyObjects(array: IDragItem[], size: number) {
   }
   return array
 }
-
+watch(
+  items,
+  () => {
+    saveUpdates()
+  },
+  { deep: true }
+)
 onMounted(() => {
+  if (localStorage.getItem('items')) {
+    items.value = JSON.parse(localStorage.getItem('items') as string)
+  }
   fillArrayWithEmptyObjects(items.value, 25)
 })
 const handleDragStart = (index: number) => {
@@ -56,6 +65,9 @@ const elementModal = (item: IDragItem) => {
   modalContent.value = item
   isModalClose.value = false
 }
+const saveUpdates = () => {
+  localStorage.setItem('items', JSON.stringify(items.value))
+}
 const setCounterValue = (item: IDragItem) => {
   items.value = items.value.map((el) => {
     if (el.id === item.id) {
@@ -79,6 +91,16 @@ const deleteElement = (item: IDragItem) => {
   })
   isModalClose.value = true
 }
+
+const resetStorage = () => {
+  localStorage.clear()
+  items.value = [
+    { id: 0, img: '/src/components/icons/GreenIcon.svg', counter: 4 },
+    { id: 1, img: '/src/components/icons/YellowIcon.svg', counter: 2 },
+    { id: 2, img: '/src/components/icons/PurpleIcon.svg', counter: 5 }
+  ]
+  fillArrayWithEmptyObjects(items.value, 25)
+}
 </script>
 
 <template>
@@ -89,12 +111,14 @@ const deleteElement = (item: IDragItem) => {
           <div class="left">
             <div class="left__wrapper">
               <div class="left__top">
-                <img src="../assets/image.svg" alt="" />
+                <div class="left__img">
+                  <img src="../assets/image.jpg" alt="" />
+                </div>
               </div>
               <div class="left__content loading">
-                <div class="left__line left__line_wide loading"></div>
+                <div class="left__line left__line_wide skeleton"></div>
                 <div
-                  class="left__line"
+                  class="left__line skeleton"
                   v-for="i in 5"
                   :key="i"
                   :style="{ width: `${Math.floor(Math.random() * 200)}px` }"
@@ -102,7 +126,7 @@ const deleteElement = (item: IDragItem) => {
               </div>
             </div>
           </div>
-          <div class="drop-zone">
+          <div class="grid-elements">
             <template v-if="Object.keys(modalContent).length && !isModalClose">
               <aside-bar :img-src="modalContent?.img" @close-modal="closeModal">
                 <template v-if="isCountModal">
@@ -147,6 +171,28 @@ const deleteElement = (item: IDragItem) => {
               </grid-element>
             </div>
           </div>
+
+          <div class="content__bottom">
+            <div class="bottom">
+              <div class="bottom__wrapper">
+                <span class="bottom__icon" @click="resetStorage">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 1.05L10.95 0L6 4.95L1.05 0L0 1.05L4.95 6L0 10.95L1.05 12L6 7.05L10.95 12L12 10.95L7.05 6L12 1.05Z"
+                      fill="white"
+                    />
+                  </svg>
+                </span>
+                <div class="bottom__line skeleton"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -186,34 +232,19 @@ const deleteElement = (item: IDragItem) => {
     height: 10px;
     border-radius: 10px;
     border-radius: 4px;
-    animation-delay: .06s;
+    animation-delay: 0.06s;
     &_wide {
       width: 190px;
       height: 26px;
     }
   }
-}
-@keyframes loading {
-  to {
-    background-position-x: -20%;
+
+  &__img img {
+    border-radius: 8px;
   }
 }
 
-.loading {
-  background-color: white;
-  background: linear-gradient(
-      100deg,
-      rgba(255, 255, 255, 0) 40%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0) 60%
-    )
-    var(--loading-grey);
-  background-size: 200% 100%;
-  background-position-x: 180%;
-  animation: 1s loading ease-in-out infinite;
-}
-
-.drop-zone {
+.grid-elements {
   position: relative;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -225,16 +256,15 @@ const deleteElement = (item: IDragItem) => {
   min-height: 100px;
 }
 
-.drop-el {
-  background-color: #eee;
-  border: 1px solid gray;
-}
-
 .content {
   margin-top: 100px;
   display: grid;
   grid-template-columns: 0.5fr 1fr;
-  gap: 40px;
+  gap: 24px;
+
+  &__bottom {
+    grid-column: span 2;
+  }
 }
 
 .actions {
@@ -249,6 +279,26 @@ const deleteElement = (item: IDragItem) => {
   &__btns {
     display: flex;
     gap: 10px;
+  }
+}
+
+.bottom {
+  position: relative;
+  padding: 16px;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  width: 100%;
+  &__line {
+    border-radius: 12px;
+    width: calc(100% - 60px);
+    height: 36px;
+  }
+  &__icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+
+    cursor: pointer;
   }
 }
 </style>
