@@ -29,7 +29,7 @@
             </div>
             <div class="modal-right__lines">
               <div
-                class="left__line loading"
+                class="modal-right__line skeleton"
                 v-for="i in 5"
                 :key="i"
                 :style="{ width: `${Math.floor(Math.random() * 200)}px` }"
@@ -92,6 +92,9 @@ aside {
   }
   &__close {
     cursor: pointer;
+  }
+  &__line {
+    height: 10px;
   }
   &__image {
     padding: 0 0 30px;

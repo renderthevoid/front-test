@@ -20,6 +20,7 @@ const props = defineProps<IAppButtonProps>()
   background: #f88;
   border-radius: 8px;
   width: 100%;
+  box-shadow: -1px 1px 100px 0px #fa7272;;
   cursor: pointer;
   &_primary {
     background: #fff;
